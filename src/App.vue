@@ -238,45 +238,19 @@
                         show-select
                         dense
           >
-            <!--            <template v-slot:body="{ items, headers }">-->
-            <!--              <tbody>-->
-            <!--              <tr v-for="(item,idx) in items" :key="idx">-->
-            <!--                <td>-->
-            <!--                  <v-checkbox @click="log(item)"></v-checkbox>-->
-            <!--                </td>-->
-            <!--                <td v-for="(header,key) in headers" :key="key">-->
-            <!--                  <v-edit-dialog-->
-            <!--                          :return-value.sync="item[header.value]"-->
-            <!--                  > {{item[header.value]}}-->
-            <!--                    <template v-slot:input>-->
-            <!--                      <v-text-field-->
-            <!--                              v-model="item[header.value]"-->
-            <!--                              label="Edit"-->
-            <!--                              single-line-->
-            <!--                      ></v-text-field>-->
-            <!--                    </template>-->
-            <!--                  </v-edit-dialog>-->
-            <!--                </td>-->
-            <!--              </tr>-->
-            <!--              </tbody>-->
-            <!--            </template>-->
-            <!--            <template v-for="h in headers" v-slot:[h.value]="props">-->
-            <!--              <v-edit-dialog-->
-            <!--                :key="h.value"-->
-            <!--                :return-value.sync="props.item[h.value]"-->
-            <!--                @open="log(props)"-->
-            <!--              >-->
-            <!--                {{props.item[h.value]}}-->
-            <!--                <template v-slot:input>-->
-            <!--                  <v-text-field-->
-            <!--                          label="Значение"-->
-            <!--                          single-line-->
-            <!--                          counter-->
-            <!--                  ></v-text-field>-->
-            <!--                  <v-btn></v-btn>-->
-            <!--                </template>-->
-            <!--              </v-edit-dialog>-->
-            <!--            </template>-->
+            <template v-slot:item.id="{ item }">
+              <a :href="'/manager/?a=resource/update&id=' + item.id" target="_blank">{{item.id}}</a>
+            </template>
+            <template v-slot:item.btn_view="{ item }">
+              <a :href="'/' + item.uri" target="_blank" style="text-decoration: none;">
+                <v-tooltip left>
+                  <template v-slot:activator="{ on }">
+                    <v-icon dense v-on="on">mdi-eye-outline</v-icon>
+                  </template>
+                  {{"/" + item.uri}}
+                </v-tooltip>
+              </a>
+            </template>
           </v-data-table>
         </v-card>
 
@@ -393,7 +367,8 @@
                         value: 'tv_' + tv.name
                     }
                 });
-                return fields.concat(tvColumns);
+                var btn_view = [{text: '', value: 'btn_view', width: "50"}];
+                return fields.concat(tvColumns, btn_view);
             }
         },
         methods: {
