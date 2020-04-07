@@ -283,34 +283,36 @@
         <v-dialog v-model="dialogs.massTvEditDialog.active" max-width="500">
           <v-card class="pa-4">
             <v-card-title>Изменить TV</v-card-title>
-            <v-row>
-              <v-col>
-                <v-select
-                  label="Tv-поле"
-                  :items="tvs"
-                  v-model="dialogs.massTvEditDialog.selected"
-                  item-text="name"
-                  return-object
-                  hide-details
-                ></v-select>
-              </v-col>
-              <v-col>
-                <v-text-field
-                  label="Значение"
-                  v-model="dialogs.massTvEditDialog.value"
-                  hide-details
-                  @keyup.enter="sendMassEditTvForm"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-checkbox label="Добавить значение к текущему" disabled></v-checkbox>
-            <v-btn
-              block
-              color="primary"
-              dark
-              @click="sendMassEditTvForm"
-            >Отправить
-            </v-btn>
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <v-select
+                    label="Tv-поле"
+                    :items="tvs"
+                    v-model="dialogs.massTvEditDialog.selected"
+                    item-text="name"
+                    return-object
+                    hide-details
+                  ></v-select>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    label="Значение"
+                    v-model="dialogs.massTvEditDialog.value"
+                    hide-details
+                    @keyup.enter="sendMassEditTvForm"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-checkbox label="Добавить значение к текущему" disabled></v-checkbox>
+              <v-btn
+                block
+                color="primary"
+                dark
+                @click="sendMassEditTvForm"
+              >Отправить
+              </v-btn>
+            </v-card-text>
           </v-card>
         </v-dialog>
         <v-snackbar
@@ -370,7 +372,9 @@
                     massTvEditDialog: {
                         active: false,
                         selected: [],
-                        value: ""
+                        value: "",
+                        addValue: false,
+                        addDelimiter: "||"
                     }
                 },
                 snackbar: {
