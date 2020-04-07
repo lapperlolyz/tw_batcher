@@ -1,9 +1,9 @@
 <div class="container" id="rebatcher-iframe-container">
-  <h2>Rebatcher</h2>
+  <h2>ReBatcher</h2>
   <iframe
           id="rebatcher-iframe"
           src="/assets/components/rebatcher/mgr/app/index.html"
-          style="width: 100%; min-height: 80vh; border: none"
+          style="width: 100%; min-height: 920px; border: none"
   ></iframe>
 
 </div>
