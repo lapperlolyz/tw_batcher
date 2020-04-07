@@ -30,6 +30,16 @@ if (isset($params['template'])) {
 
 if (isset($params['filters'])) {
     foreach ($params['filters'] as $f) {
+        switch ($f['operator']) {
+            case 'IN':
+            case 'NOT IN':
+                $value = explode(',', $f['value']);
+                break;
+            default:
+                $value = $f['value'];
+                break;
+
+        }
         $query->where([
             $f['field'] . ":" . $f['operator'] => $f['value']
         ]);

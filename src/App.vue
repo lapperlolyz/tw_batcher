@@ -2,16 +2,6 @@
   <div id="app">
     <v-app style="background-color: #f2f2f2">
       <v-content>
-        <v-card class="my-4 pa-3">
-          <v-row>
-            <v-col>
-
-            </v-col>
-            <v-col></v-col>
-            <v-col></v-col>
-          </v-row>
-        </v-card>
-
         <v-row>
           <v-col>
             <v-card height="60" class="pa-4">
@@ -66,18 +56,20 @@
                     </v-row>
                     <v-row v-for="(f, i) in filters" :key="f.field">
                       <v-col class="py-0">
-                        <v-select
+                        <v-autocomplete
                           label="Поле"
                           dense
-                          :items="['pagetitle', 'longtitle', 'menutitle']"
+                          :items="fields"
+                          item-text="text"
+                          item-value="value"
                           v-model="filters[i].field"
-                        ></v-select>
+                        ></v-autocomplete>
                       </v-col>
                       <v-col class="py-0">
                         <v-select
                           label="Оператор"
                           dense
-                          :items="['=', '!=', '>', '<', '>=', '<=', 'IN', 'LIKE', 'BETWEEN', 'IS NULL', 'IS NOT NULL']"
+                          :items="['=', '!=', '>', '<', '>=', '<=', 'IN', 'NOT IN', 'LIKE', 'BETWEEN', 'IS NULL', 'IS NOT NULL']"
                           v-model="filters[i].operator"></v-select>
                       </v-col>
                       <v-col class="py-0">
@@ -290,6 +282,7 @@
 
         <v-dialog v-model="dialogs.massTvEditDialog.active" max-width="500">
           <v-card class="pa-4">
+            <v-card-title>Изменить TV</v-card-title>
             <v-row>
               <v-col>
                 <v-select
