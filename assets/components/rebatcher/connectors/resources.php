@@ -28,6 +28,8 @@ if (isset($params['template'])) {
     ]);
 }
 
+// TODO: Не работают фильтры IN, NOT IN
+
 if (isset($params['filters'])) {
     foreach ($params['filters'] as $f) {
         switch ($f['operator']) {
@@ -35,13 +37,16 @@ if (isset($params['filters'])) {
             case 'NOT IN':
                 $value = explode(',', $f['value']);
                 break;
+            case 'LIKE':
+            case 'NOT LIKE':
+                $value = "%" . $f['value'] . "%";
+                break;
             default:
                 $value = $f['value'];
                 break;
-
         }
         $query->where([
-            $f['field'] . ":" . $f['operator'] => $f['value']
+            $f['field'] . ":" . $f['operator'] => $value
         ]);
     }
 } else if (isset($params['search'])) {

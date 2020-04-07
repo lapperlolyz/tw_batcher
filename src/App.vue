@@ -69,7 +69,7 @@
                         <v-select
                           label="Оператор"
                           dense
-                          :items="['=', '!=', '>', '<', '>=', '<=', 'IN', 'NOT IN', 'LIKE', 'BETWEEN', 'IS NULL', 'IS NOT NULL']"
+                          :items="operators"
                           v-model="filters[i].operator"></v-select>
                       </v-col>
                       <v-col class="py-0">
@@ -327,6 +327,7 @@
 <script>
     import axios from "axios";
     import resourceFields from "@/resourceFields";
+    import sqlOperators from "@/sqlOperators";
 
     export default {
         name: 'App',
@@ -347,6 +348,7 @@
                 resourcesSelected: [],
                 fields: resourceFields.all,
                 fieldsSelected: resourceFields.default,
+                operators: sqlOperators,
                 tvs: [],
                 tvsSelected: [],
                 templates: [],
