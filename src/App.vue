@@ -70,7 +70,7 @@
                           label="Оператор"
                           dense
                           :items="operators"
-                          v-model="filters[i].operator"></v-select>
+                        v-model="filters[i].operator"></v-select>
                       </v-col>
                       <v-col class="py-0">
                         <v-text-field
@@ -79,6 +79,13 @@
                           v-model="filters[i].value"
                           @keyup.enter="getResources"
                         ></v-text-field>
+                      </v-col>
+                      <v-col cols="auto">
+                        <v-switch
+                          v-model="f.active"
+                          class="mt-0 pt-0"
+                          dense
+                        ></v-switch>
                       </v-col>
                       <v-col cols="auto">
                         <v-icon @click="filters.splice(filters.indexOf(f), 1)">mdi-trash-can-outline</v-icon>
@@ -445,7 +452,7 @@
                     }
 
                     if (this.filters.length) {
-                        params.filters = this.filters;
+                        params.filters = this.filters.filter(f => f.active);
                     } else if (this.searchField?.length) {
                         params.search = this.searchField;
                     }
@@ -499,6 +506,7 @@
             },
             addFilter() {
                 this.filters.push({
+                    active: true,
                     field: '',
                     operator: '',
                     value: ''
