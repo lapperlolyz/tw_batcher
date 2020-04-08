@@ -21,12 +21,12 @@
                     <v-list-item @click="getResources">
                       Обновить данные
                     </v-list-item>
-                    <v-list-item @click="openMassEditTvDialog">
+                    <v-list-item @click="openMassEditDialog">
                       Переключить TV
                     </v-list-item>
                   </v-list>
                 </v-menu>
-                <v-btn @click="openMassEditTvDialog" small>
+                <v-btn @click="openMassEditDialog" small>
                   <v-icon small class="me-2">
                     mdi-pencil
                   </v-icon>
@@ -77,6 +77,7 @@
                           label="Значение"
                           dense
                           v-model="filters[i].value"
+                          @keyup.enter="getResources"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="auto">
@@ -254,38 +255,85 @@
           </v-data-table>
         </v-card>
 
-        <v-dialog v-model="dialogs.massTvEditDialog.active" max-width="500">
+        <v-dialog v-model="dialogs.massEditDailog.active" max-width="600">
           <v-card class="pa-4">
-            <v-card-title>Изменить TV</v-card-title>
+            <v-card-title>Изменить ресурсы</v-card-title>
             <v-card-text>
-              <v-row>
-                <v-col>
-                  <v-select
-                    label="Tv-поле"
-                    :items="tvs"
-                    v-model="dialogs.massTvEditDialog.selected"
-                    item-text="name"
-                    return-object
-                    hide-details
-                  ></v-select>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    label="Значение"
-                    v-model="dialogs.massTvEditDialog.value"
-                    hide-details
-                    @keyup.enter="sendMassEditTvForm"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-checkbox label="Добавить значение к текущему" disabled></v-checkbox>
-              <v-btn
-                block
-                color="primary"
-                dark
-                @click="sendMassEditTvForm"
-              >Отправить
-              </v-btn>
+              <div class="my-6">
+                <div class="d-flex justify-space-between align-center">
+                  <div class="display-1">Поля</div>
+                  <v-icon @click="addMassEditField">mdi-plus</v-icon>
+                </div>
+                <div v-for="f in dialogs.massEditDailog.fields" :key="f.field">
+
+                  <v-row>
+                    <v-col class="py-2">
+                      <v-autocomplete
+                        label="Поле"
+                        :items="fields"
+                        v-model="f.field"
+                        item-text="value"
+                        hide-details
+                        dense
+                      ></v-autocomplete>
+                    </v-col>
+                    <v-col class="py-2">
+                      <v-text-field
+                        label="Значение"
+                        v-model="f.value"
+                        hide-details
+                        dense
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="auto">
+                      <v-icon @click="dialogs.massEditDailog.fields.splice(dialogs.massEditDailog.fields.indexOf(f), 1)">mdi-trash-can-outline</v-icon>
+                    </v-col>
+                  </v-row>
+
+                </div>
+              </div>
+              <div class="my-6">
+                <div class="d-flex justify-space-between align-center">
+                  <div class="display-1">Tv-поля</div>
+                  <v-icon @click="addMassEditTv">mdi-plus</v-icon>
+                </div>
+                <div v-for="tv in dialogs.massEditDailog.tvs" :key="tv.field">
+                  <v-row>
+                    <v-col class="py-2">
+                      <v-autocomplete
+                        label="Tv-поле"
+                        :items="tvs"
+                        v-model="tv.field"
+                        item-text="name"
+                        item-value="id"
+                        hide-details
+                        dense
+                      ></v-autocomplete>
+                    </v-col>
+                    <v-col class="py-2">
+                      <v-text-field
+                        label="Значение"
+                        v-model="tv.value"
+                        hide-details
+                        dense
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="auto">
+                      <v-icon @click="dialogs.massEditDailog.tvs.splice(dialogs.massEditDailog.tvs.indexOf(tv), 1)">mdi-trash-can-outline</v-icon>
+                    </v-col>
+                  </v-row>
+
+                </div>
+              </div>
+              <div class="mt-6">
+                <v-btn
+                  block
+                  color="primary"
+                  dark
+                  @click="sendMassEditForm"
+                >Отправить
+                </v-btn>
+              </div>
             </v-card-text>
           </v-card>
         </v-dialog>
@@ -343,10 +391,14 @@
                     sortDesc: []
                 },
                 dialogs: {
-                    massTvEditDialog: {
+                    massEditDailog: {
                         active: false,
-                        selected: [],
-                        value: "",
+                        //selected: [],
+                        //value: "",
+
+                        fields: [],
+                        tvs: [],
+
                         addValue: false,
                         addDelimiter: "||"
                     }
@@ -452,36 +504,43 @@
                     value: ''
                 })
             },
-            openMassEditTvDialog() {
+            openMassEditDialog() {
                 if (!this.resourcesSelected.length) {
                     this.snackbar.active = true;
                     this.snackbar.color = 'error';
                     this.snackbar.text = 'Не выбраны ресуры';
                     return;
                 }
-                this.dialogs.massTvEditDialog.active = true;
+                this.dialogs.massEditDailog.active = true;
             },
-            sendMassEditTvForm() {
+            addMassEditField() {
+                this.dialogs.massEditDailog.fields.push({
+                    field: '',
+                    value: ''
+                })
+            },
+            addMassEditTv() {
+                this.dialogs.massEditDailog.tvs.push({
+                    field: '',
+                    value: ''
+                })
+            },
+            sendMassEditForm() {
                 // eslint-disable-next-line no-unused-vars
                 var arr = this.resourcesSelected.map(r => {
                     return {
                         id: r.id,
-                        tvId: this.dialogs.massTvEditDialog.selected.id,
-                        value: this.dialogs.massTvEditDialog.value
+                        fields: this.dialogs.massEditDailog.fields,
+                        tvs: this.dialogs.massEditDailog.tvs,
                     }
                 });
-                // axios.post('/assets/components/rebatcher/connectors/tvs_mass_update.php', {
-                //     params: {
-                //         data: arr
-                //     }
-                // })
                 let data = {
                     data: arr
                 };
-                axios.post('/assets/components/rebatcher/connectors/tvs_mass_update.php', JSON.stringify(data))
+                axios.post('/assets/components/rebatcher/connectors/batch_update.php', data)
                     .then(r => {
                         console.log(r.data);
-                        this.dialogs.massTvEditDialog.active = false;
+                        this.dialogs.massEditDailog.active = false;
                         this.getResources();
                     });
 
@@ -508,10 +567,8 @@
 <style lang="sass">
   html
     font-size: 14px !important
+
     #rebatcher-before-resource-table
       .v-label
         font-size: inherit
-    #rebatcher-resource-table
-      table
-        /*table-layout: fixed*/
 </style>
