@@ -11,7 +11,7 @@ if (!defined('MODX_CORE_PATH')) {
 return [
     'name' => 'rebatcher',
     'name_lower' => 'rebatcher',
-    'version' => '1.2.0',
+    'version' => '1.2.1',
     'release' => 'pl',
     // Install package to site right after build
     'install' => true,

@@ -24,8 +24,8 @@
         <v-row>
           <v-col>
             <v-text-field
-              v-model="parent"
-              label="Цель"
+              v-model="parents"
+              label="Цели (через запятую)"
               dense
               outlined
             ></v-text-field>
@@ -34,7 +34,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" text :disabled="parent.length === 0" @click="submit">Применить</v-btn>
+        <v-btn color="primary" text :disabled="parents.length === 0" @click="submit">Применить</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -53,18 +53,18 @@
         data() {
             return {
                 active: false,
-                parent: ''
+                parents: ''
             }
         },
         methods: {
             submit() {
                 axios.post('/assets/components/rebatcher/connectors/duplicate.php', {
                     resources: this.resources.map(r => r.id),
-                    parent: parseInt(this.parent)
+                    parents: this.parents.split(',').map(id => parseInt(id))
                 })
                     .then(() => {
                         this.active = false
-                        this.parent = '';
+                        this.parents = '';
                         this.$emit('success');
                     });
 

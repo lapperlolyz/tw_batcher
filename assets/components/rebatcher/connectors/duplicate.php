@@ -11,42 +11,44 @@ require_once MODX_CONNECTORS_PATH.'index.php';
 
 $data = json_decode(file_get_contents("php://input"));
 
-$pid = $data->parent;
+foreach($data->parents as $p) {
 
-foreach($data->resources as $r) {
-    $context = $modx->getObject('modResource', $pid)->get('context_key');
+    $pid = $p;
+    foreach($data->resources as $r) {
+        $context = $modx->getObject('modResource', $pid)->get('context_key');
 
-    $res = $modx->getObject('modResource', $r);
+        $res = $modx->getObject('modResource', $r);
 
-    $copy = $modx->newObject('modResource');
-    $copy->fromArray($res->toArray());
-    $copy->set('parent', $pid);
-    $copy->set('context_key', $context);
+        $copy = $modx->newObject('modResource');
+        $copy->fromArray($res->toArray());
+        $copy->set('parent', $pid);
+        $copy->set('context_key', $context);
 
-    $count = $modx->getCount('modResource', [
-        'parent' => $pid,
-        'pagetitle' => $copy->get('pagetitle')
-    ]);
+        $count = $modx->getCount('modResource', [
+            'parent' => $pid,
+            'pagetitle' => $copy->get('pagetitle')
+        ]);
 
-    if ($count > 0) {
-        $copy->set('pagetitle', $copy->get('pagetitle') . " (Копия)");
-        $copy->set('alias', $copy->get('alias') . " -copy");
-    }
+        if ($count > 0) {
+            $copy->set('pagetitle', $copy->get('pagetitle') . " (Копия)");
+            $copy->set('alias', $copy->get('alias') . " -copy");
+        }
 
-    $copy->save();
+        $copy->save();
 
-    $copyid = $copy->get('id');
+        $copyid = $copy->get('id');
 
-    $tvs = $modx->getCollection('modTemplateVarResource', array(
-        "contentid" => $r,
-    ));
+        $tvs = $modx->getCollection('modTemplateVarResource', array(
+            "contentid" => $r,
+        ));
 
-    foreach ($tvs as $tv) {
-        $copytv = $modx->newObject('modTemplateVarResource');
-        $copytv->set('tmplvarid', $tv->tmplvarid);
-        $copytv->set('value', $tv->value);
-        $copytv->set('contentid', $copyid);
-        $copytv->save();
+        foreach ($tvs as $tv) {
+            $copytv = $modx->newObject('modTemplateVarResource');
+            $copytv->set('tmplvarid', $tv->tmplvarid);
+            $copytv->set('value', $tv->value);
+            $copytv->set('contentid', $copyid);
+            $copytv->save();
+        }
     }
 }
 
