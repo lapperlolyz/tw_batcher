@@ -6,7 +6,7 @@
           <v-col>
             <v-card height="60" class="pa-4">
               <div class="d-flex align-center justify-space-between">
-                <v-menu offset-y>
+                <v-menu offset-y close-on-click>
                   <template v-slot:activator="{ on }">
                     <v-btn
                       color="primary"
@@ -22,15 +22,22 @@
                       Обновить данные
                     </v-list-item>
                     <v-list-item @click="openMassEditDialog">
-                      Переключить TV
+                      Изменить ресурсы
                     </v-list-item>
+                    <resource-duplicate-dialog :resources="resourcesSelected" @success="getResources">
+                      <template v-slot:activator="{ on }">
+                        <v-list-item v-on="on">
+                          Копировать ресурсы
+                        </v-list-item>
+                      </template>
+                    </resource-duplicate-dialog>
                   </v-list>
                 </v-menu>
                 <v-btn @click="openMassEditDialog" small>
                   <v-icon small class="me-2">
                     mdi-pencil
                   </v-icon>
-                  TV
+                  Изменить
                 </v-btn>
                 <v-menu offset-y :close-on-content-click="false">
                   <template v-slot:activator="{ on }">
@@ -46,12 +53,9 @@
                   <v-card class="pa-4">
                     <v-row>
                       <v-col>
-                        Фильтры
-                      </v-col>
-                      <v-col>
-                        <v-btn x-small dark color="primary" @click="addFilter">
-                          <v-icon x-small>mdi-plus</v-icon>
-                        </v-btn>
+                        Фильтры <v-btn x-small dark color="primary" @click="addFilter" class="ml-3">
+                        <v-icon x-small>mdi-plus</v-icon>
+                      </v-btn>
                       </v-col>
                     </v-row>
                     <v-row v-for="(f, i) in filters" :key="f.field">
@@ -262,7 +266,7 @@
           </v-data-table>
         </v-card>
 
-        <v-dialog v-model="dialogs.massEditDailog.active" max-width="600">
+        <v-dialog v-model="dialogs.massEditDialog.active" max-width="600">
           <v-card class="pa-4">
             <v-card-title>Изменить ресурсы</v-card-title>
             <v-card-text>
@@ -271,7 +275,7 @@
                   <div class="display-1">Поля</div>
                   <v-icon @click="addMassEditField">mdi-plus</v-icon>
                 </div>
-                <div v-for="f in dialogs.massEditDailog.fields" :key="f.field">
+                <div v-for="f in dialogs.massEditDialog.fields" :key="f.field">
 
                   <v-row>
                     <v-col class="py-2">
@@ -293,7 +297,7 @@
                       ></v-text-field>
                     </v-col>
                     <v-col cols="auto">
-                      <v-icon @click="dialogs.massEditDailog.fields.splice(dialogs.massEditDailog.fields.indexOf(f), 1)">mdi-trash-can-outline</v-icon>
+                      <v-icon @click="dialogs.massEditDialog.fields.splice(dialogs.massEditDialog.fields.indexOf(f), 1)">mdi-trash-can-outline</v-icon>
                     </v-col>
                   </v-row>
 
@@ -304,7 +308,7 @@
                   <div class="display-1">Tv-поля</div>
                   <v-icon @click="addMassEditTv">mdi-plus</v-icon>
                 </div>
-                <div v-for="tv in dialogs.massEditDailog.tvs" :key="tv.field">
+                <div v-for="tv in dialogs.massEditDialog.tvs" :key="tv.field">
                   <v-row>
                     <v-col class="py-2">
                       <v-autocomplete
@@ -326,7 +330,7 @@
                       ></v-text-field>
                     </v-col>
                     <v-col cols="auto">
-                      <v-icon @click="dialogs.massEditDailog.tvs.splice(dialogs.massEditDailog.tvs.indexOf(tv), 1)">mdi-trash-can-outline</v-icon>
+                      <v-icon @click="dialogs.massEditDialog.tvs.splice(dialogs.massEditDialog.tvs.indexOf(tv), 1)">mdi-trash-can-outline</v-icon>
                     </v-col>
                   </v-row>
 
@@ -344,6 +348,7 @@
             </v-card-text>
           </v-card>
         </v-dialog>
+
         <v-snackbar
           v-model="snackbar.active"
           :color="snackbar.color"
@@ -360,9 +365,13 @@
     import resourceFields from "@/resourceFields";
     import sqlOperators from "@/sqlOperators";
 
+    import ResourceDuplicateDialog from "@/components/ResourceDuplicateDialog";
+
     export default {
         name: 'App',
-        components: {},
+        components: {
+            ResourceDuplicateDialog
+        },
         data() {
             return {
                 loading: false,
@@ -398,10 +407,8 @@
                     sortDesc: []
                 },
                 dialogs: {
-                    massEditDailog: {
+                    massEditDialog: {
                         active: false,
-                        //selected: [],
-                        //value: "",
 
                         fields: [],
                         tvs: [],
@@ -519,16 +526,16 @@
                     this.snackbar.text = 'Не выбраны ресуры';
                     return;
                 }
-                this.dialogs.massEditDailog.active = true;
+                this.dialogs.massEditDialog.active = true;
             },
             addMassEditField() {
-                this.dialogs.massEditDailog.fields.push({
+                this.dialogs.massEditDialog.fields.push({
                     field: '',
                     value: ''
                 })
             },
             addMassEditTv() {
-                this.dialogs.massEditDailog.tvs.push({
+                this.dialogs.massEditDialog.tvs.push({
                     field: '',
                     value: ''
                 })
@@ -538,8 +545,8 @@
                 var arr = this.resourcesSelected.map(r => {
                     return {
                         id: r.id,
-                        fields: this.dialogs.massEditDailog.fields,
-                        tvs: this.dialogs.massEditDailog.tvs,
+                        fields: this.dialogs.massEditDialog.fields,
+                        tvs: this.dialogs.massEditDialog.tvs,
                     }
                 });
                 let data = {
@@ -548,7 +555,7 @@
                 axios.post('/assets/components/rebatcher/connectors/batch_update.php', data)
                     .then(r => {
                         console.log(r.data);
-                        this.dialogs.massEditDailog.active = false;
+                        this.dialogs.massEditDialog.active = false;
                         this.getResources();
                     });
 

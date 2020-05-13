@@ -51,11 +51,18 @@ if (isset($params['filters'])) {
     }
 } else if (isset($params['search'])) {
     $query->where([
-        'pagetitle:LIKE' => "%".$params['search']."%"
+        'id:=' => $params['search']
     ]);
-    $query->orCondition ([
+    $query->orCondition([
+        'pagetitle:LIKE' => "%".$params['search']."%",
         'alias:LIKE' => "%".$params['search']."%"
     ]);
+//    $query->orCondition ([
+//        'alias:LIKE' => "%".$params['search']."%"
+//    ]);
+//    $query->orCondition ([
+//        'id:=' => "%".$params['search']."%"
+//    ]);
 }
 
 if (isset($params['sort'])) {
