@@ -6,7 +6,7 @@
           <v-col>
             <v-card height="60" class="pa-4">
               <div class="d-flex align-center justify-space-between">
-                <v-menu offset-y close-on-click>
+                <v-menu offset-y close-on-click close-on-content-click>
                   <template v-slot:activator="{ on }">
                     <v-btn
                       color="primary"
@@ -31,6 +31,13 @@
                         </v-list-item>
                       </template>
                     </resource-duplicate-dialog>
+                    <field-replace-dialog :resources="resourcesSelected" @success="getResources">
+                      <template v-slot:activator="{ on }">
+                        <v-list-item v-on="on">
+                          Замена значения в поле
+                        </v-list-item>
+                      </template>
+                    </field-replace-dialog>
                   </v-list>
                 </v-menu>
                 <v-btn @click="openMassEditDialog" small>
@@ -253,6 +260,18 @@
             <template v-slot:item.id="{ item }">
               <a :href="'/manager/?a=resource/update&id=' + item.id" target="_blank">{{item.id}}</a>
             </template>
+            <template
+              v-for="f in fieldsEditable"
+              v-slot:[dynamicSlotName(f.value)]="{ item }"
+            >
+              <field-edit-dialog :key="f.value" :field="f" :item="item"></field-edit-dialog>
+            </template>
+            <template
+              v-for="t in tvsSelected"
+              v-slot:[dynamicSlotName(`tv_${t.name}`)]="{ item }"
+            >
+              <tv-edit-dialog :key="t.name" :tv="t" :item="item"></tv-edit-dialog>
+            </template>
             <template v-slot:item.btn_view="{ item }">
               <a :href="'/' + item.uri" target="_blank" style="text-decoration: none;">
                 <v-tooltip left>
@@ -366,11 +385,17 @@
     import sqlOperators from "@/sqlOperators";
 
     import ResourceDuplicateDialog from "@/components/ResourceDuplicateDialog";
+    import FieldEditDialog from "@/components/FieldEditDialog";
+    import FieldReplaceDialog from "@/components/FieldReplaceDialog";
+    import TvEditDialog from "@/components/TvEditDialog";
 
     export default {
         name: 'App',
         components: {
-            ResourceDuplicateDialog
+            ResourceDuplicateDialog,
+            FieldReplaceDialog,
+            FieldEditDialog,
+            TvEditDialog
         },
         data() {
             return {
@@ -391,8 +416,8 @@
                 operators: sqlOperators,
                 tvs: [],
                 tvsSelected: [],
-                templates: [],
-                contexts: [],
+                // templates: [],
+                // contexts: [],
 
                 filters: [],
 
@@ -435,9 +460,21 @@
                 });
                 var btn_view = [{text: '', value: 'btn_view', width: "50"}];
                 return fields.concat(tvColumns, btn_view);
+            },
+            fieldsEditable() {
+                return this.fieldsSelected.filter(f => !f.immutable);
+            },
+            contexts() {
+                return this.$store.getters.contexts;
+            },
+            templates() {
+                return this.$store.getters.templates;
             }
         },
         methods: {
+            dynamicSlotName(f) {
+                return `item.${f}`;
+            },
             log(l) {
                 console.log(l);
             },
@@ -489,24 +526,6 @@
                     axios.get('/assets/components/rebatcher/connectors/tvs.php')
                         .then(r => {
                             this.tvs = r.data;
-                            resolve();
-                        });
-                });
-            },
-            getTemplates() {
-                return new Promise(resolve => {
-                    axios.get('/assets/components/rebatcher/connectors/templates.php')
-                        .then(r => {
-                            this.templates = [{id: 0, templatename: 'Не задан'}].concat(r.data);
-                            resolve();
-                        });
-                });
-            },
-            getContexts() {
-                return new Promise(resolve => {
-                    axios.get('/assets/components/rebatcher/connectors/contexts.php')
-                        .then(r => {
-                            this.contexts = r.data;
                             resolve();
                         });
                 });
@@ -571,10 +590,11 @@
         },
         async mounted() {
             window.rebatcherApp = this;
+            await this.$store.dispatch('init');
             await this.getTVs();
             await this.getResources();
-            await this.getTemplates();
-            await this.getContexts();
+            // await this.getTemplates();
+            // await this.getContexts();
         }
     }
 </script>

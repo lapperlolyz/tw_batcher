@@ -2,7 +2,7 @@
 
 return [
     'rebatcher' => [
-        'description' => 'rebatcher_menu_desc',
+        'description' => 'Массовое управление ресурсами',
         'action' => 'index',
         //'icon' => '<i class="icon icon-large icon-modx"></i>',
     ],
