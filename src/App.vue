@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <v-app style="background-color: #f2f2f2">
-      <v-content>
+
+      <v-app-bar flat app>
         <v-row>
-          <v-col>
+          <v-col class="pl-0">
             <v-card height="60" class="pa-4">
               <div class="d-flex align-center justify-space-between">
                 <v-menu offset-y close-on-click close-on-content-click>
@@ -81,7 +82,7 @@
                           label="Оператор"
                           dense
                           :items="operators"
-                        v-model="filters[i].operator"></v-select>
+                          v-model="filters[i].operator"></v-select>
                       </v-col>
                       <v-col class="py-0">
                         <v-text-field
@@ -141,7 +142,7 @@
               ></v-select>
             </v-card>
           </v-col>
-          <v-col>
+          <v-col class="pr-0">
             <v-card height="60" class="pa-3">
               <div class="d-flex align-center">
                 <v-text-field
@@ -162,7 +163,9 @@
             </v-card>
           </v-col>
         </v-row>
+      </v-app-bar>
 
+      <v-content>
         <v-card class="my-4">
           <v-card class="ma-0 pt-1" flat style="font-size: 11px;" id="rebatcher-before-resource-table">
             <v-row>
